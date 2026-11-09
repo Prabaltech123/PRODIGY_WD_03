@@ -2,65 +2,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe | Play with AI</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic-Tac-Toe | Play with AI</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px 15px;
+    font-family: Arial, sans-serif;
+    color: #f8f7ff;
+    background:
+        radial-gradient(circle at 10% 10%, #5448a0, transparent 35%),
+        radial-gradient(circle at 90% 90%, #752f78, transparent 35%),
+        #111126;
+}
+
+.game {
+    width: 100%;
+    max-width: 430px;
+    padding: 30px 25px;
+    border-radius: 28px;
+    background: #ffffff0b;
+    border: 1px solid #ffffff20;
+    box-shadow: 0 25px 70px #00000045;
+    backdrop-filter: blur(15px);
+}
+
+header {
+    text-align: center;
+}
+
+.game-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    color: white;
+    font-size: 27px;
+    background: linear-gradient(135deg, #8b7bff, #ed71c8);
+}
+
+h1 {
+    font-size: 32px;
+    letter-spacing: -1px;
+}
+
+header p {
+    margin-top: 8px;
+    color: #bdb9df;
+    font-size: 14px;
+}
+
+.mode-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 25px 0 18px;
+}
+
+.mode-box label {
+    font-size: 14px;
+    color: #d6d2f1;
+}
+
+select {
+    max-width: 60%;
+    padding: 11px;
+    border: 1px solid #ffffff25;
+    border-radius: 10px;
+    background: #292748;
+    color: white;
+    font-size: 13px;
+    outline: none;
+}
+
+.scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.score-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 16px 8px;
+    border: 1px solid #ffffff15;
+    border-radius: 16px;
+    background: #ffffff08;
+    transition: 0.2s;
+}
+
+.score-card.active {
+    border-color: #9a82ff;
+    background: #9280ff17;
+}
+
+.score-card span {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #d4d0ef;
+}
+
+.score-card strong {
+    font-size: 29px;
+}
+
+.score-card small {
+    color: #aaa6cd;
+    font-size: 12px;
+}
+
+#xCard strong, .x {
+    color: #64dcff;
+}
+
+#oCard strong, .o {
+    color: #ff8bdb;
+}
+
+.status {
+    min-height: 46px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 18px 0 12px;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffe29a;
+    border-radius: 12px;
+    background: #ffffff08;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    aspect-ratio: 1;
+}
+
+.cell {
+    min-width: 0;
+    border: 1px solid #ffffff1c;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #ffffff12, #ffffff05);
+    font-size: clamp(38px, 12vw, 60px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.cell:not(:disabled):hover {
+    transform: scale(1.035);
+    background: #9280ff20;
+    border-color: #9a82ff;
+}
+
+.cell:disabled {
+    cursor: default;
+}
+
+.cell.winner {
+    background: #47e5ad25;
+    border-color: #47e5ad;
+    box-shadow: 0 0 20px #47e5ad25;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.actions button {
+    padding: 13px 8px;
+    border: 1px solid #ffffff20;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #7965ef, #a15ce0);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.actions button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.actions #reset {
+    background: #ffffff0d;
+}
+
+.footer {
+    margin-top: 22px;
+    text-align: center;
+    color: #9995bd;
+    font-size: 11px;
+}
+
+@media (max-width: 360px) {
+    .game {
+        padding: 23px 16px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    .board {
+        gap: 7px;
+    }
+
+    .cell {
+        border-radius: 12px;
+    }
+}
+</style>
 </head>
+
 <body>
-    <main class="game">
-        <header>
-            <div class="game-icon">✦</div>
-            <h1>Tic-Tac-Toe</h1>
-            <p>Think smart. Play your best.</p>
-        </header>
 
-        <div class="mode-box">
-            <label for="mode">Game mode</label>
-            <select id="mode">
-                <option value="ai">🤖 Play with AI</option>
-                <option value="friend">👥 Two Players</option>
-            </select>
-        </div>
+<main class="game">
 
-        <div class="scores">
-            <div class="score-card active" id="xCard">
-                <span>PLAYER X</span>
-                <strong id="scoreX">0</strong>
-                <small id="xLabel">You</small>
-            </div>
-            <div class="score-card" id="oCard">
-                <span id="oTitle">AI PLAYER O</span>
-                <strong id="scoreO">0</strong>
-                <small id="oLabel">Computer</small>
-            </div>
-        </div>
+<header>
+    <div class="game-icon">✦</div>
+    <h1>Tic-Tac-Toe</h1>
+    <p>Think smart. Play your best.</p>
+</header>
 
-        <div class="status" id="status" aria-live="polite">
-            Your turn — choose a square!
-        </div>
+<div class="mode-box">
+    <label for="mode">Game mode</label>
+    <select id="mode">
+        <option value="ai">🤖 Play with AI</option>
+        <option value="friend">👥 Two Players</option>
+    </select>
+</div>
 
-        <div class="board" id="board">
-            <button class="cell" data-index="0" aria-label="Square 1"></button>
-            <button class="cell" data-index="1" aria-label="Square 2"></button>
-            <button class="cell" data-index="2" aria-label="Square 3"></button>
-            <button class="cell" data-index="3" aria-label="Square 4"></button>
-            <button class="cell" data-index="4" aria-label="Square 5"></button>
-            <button class="cell" data-index="5" aria-label="Square 6"></button>
-            <button class="cell" data-index="6" aria-label="Square 7"></button>
-            <button class="cell" data-index="7" aria-label="Square 8"></button>
-            <button class="cell" data-index="8" aria-label="Square 9"></button>
-        </div>
+<div class="scores">
+    <div class="score-card active" id="xCard">
+        <span>PLAYER X</span>
+        <strong id="scoreX">0</strong>
+        <small id="xLabel">You</small>
+    </div>
 
-        <div class="actions">
-            <button id="restart">↻ New Round</button>
-            <button id="reset">Reset Scores</button>
-        </div>
+    <div class="score-card" id="oCard">
+        <span id="oTitle">AI PLAYER O</span>
+        <strong id="scoreO">0</strong>
+        <small id="oLabel">Computer</small>
+    </div>
+</div>
 
-        <p class="footer">Made with HTML, CSS & JavaScript</p>
-    </main>
+<div class="status" id="status" aria-live="polite">
+    Your turn — choose a square!
+</div>
 
-    <script src="script.js"></script>
+<div class="board" id="board">
+    <button class="cell" data-index="0" aria-label="Square 1"></button>
+    <button class="cell" data-index="1" aria-label="Square 2"></button>
+    <button class="cell" data-index="2" aria-label="Square 3"></button>
+    <button class="cell" data-index="3" aria-label="Square 4"></button>
+    <button class="cell" data-index="4" aria-label="Square 5"></button>
+    <button class="cell" data-index="5" aria-label="Square 6"></button>
+    <button class="cell" data-index="6" aria-label="Square 7"></button>
+    <button class="cell" data-index="7" aria-label="Square 8"></button>
+    <button class="cell" data-index="8" aria-label="Square 9"></button>
+</div>
+
+<div class="actions">
+    <button id="restart">↻ New Round</button>
+    <button id="reset">Reset Scores</button>
+</div>
+
+<p class="footer">Made with HTML, CSS & JavaScript</p>
+
+</main>
+
+<script>
+const cells = [...document.querySelectorAll(".cell")];
+const statusText = document.getElementById("status");
+const mode = document.getElementById("mode");
+
+const scoreXText = document.getElementById("scoreX");
+const scoreOText = document.getElementById("scoreO");
+const xCard = document.getElementById("xCard");
+const oCard = document.getElementById("oCard");
+
+const restartBtn = document.getElementById("restart");
+const resetBtn = document.getElementById("reset");
+
+let board = Array(9).fill("");
+let currentPlayer = "X";
+let gameActive = true;
+let scoreX = 0;
+let scoreO = 0;
+let aiTimer = null;
+
+const wins = [
+    [0,1,2], [3,4,5], [6,7,8],
+    [0,3,6], [1,4,7], [2,5,8],
+    [0,4,8], [2,4,6]
+];
+
+function getWinner(state) {
+    for (const line of wins) {
+        const [a,b,c] = line;
+
+        if (state[a] &&
+            state[a] === state[b] &&
+            state[b] === state[c]) {
+            return {player: state[a], line};
+        }
+    }
+    return null;
+}
+
+function updateTurnDisplay() {
+    xCard.classList.toggle("active", currentPlayer === "X");
+    oCard.classList.toggle("active", currentPlayer === "O");
+}
+
+function renderBoard() {
+    cells.forEach((cell, i) => {
+        cell.textContent = board[i];
+        cell.classList.toggle("x", board[i] === "X");
+        cell.classList.toggle("o", board[i] === "O");
+        cell.classList.remove("winner");
+
+        cell.setAttribute(
+            "aria-label",
+            `Square ${i + 1}${board[i] ? ": " + board[i] : ""}`
+        );
+
+        cell.disabled =
+            !gameActive ||
+            board[i] !== "" ||
+            (mode.value === "ai" && currentPlayer === "O");
+    });
+
+    updateTurnDisplay();
+}
+
+function finishGame(result) {
+    gameActive = false;
+    clearTimeout(aiTimer);
+    aiTimer = null;
+
+    if (result) {
+        result.line.forEach(i => cells[i].classList.add("winner"));
+
+        if (result.player === "X") {
+            scoreX++;
+            scoreXText.textContent = scoreX;
+            statusText.textContent =
+                mode.value === "ai" ? "🎉 You win!" : "🎉 Player X wins!";
+        } else {
+            scoreO++;
+            scoreOText.textContent = scoreO;
+            statusText.textContent =
+                mode.value === "ai" ? "🤖 AI wins! Try again!" : "🎉 Player O wins!";
+        }
+    } else {
+        statusText.textContent = "🤝 It's a draw!";
+    }
+
+    renderBoard();
+}
+
+function checkGame() {
+    const result = getWinner(board);
+
+    if (result) {
+        finishGame(result);
+        return true;
+    }
+
+    if (board.every(cell => cell !== "")) {
+        finishGame(null);
+        return true;
+    }
+
+    return false;
+}
+
+function makeMove(index) {
+    if (!gameActive || board[index] !== "") return;
+    if (mode.value === "ai" && currentPlayer === "O") return;
+
+    board[index] = currentPlayer;
+    renderBoard();
+
+    if (checkGame()) return;
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    updateTurnDisplay();
+
+    if (mode.value === "ai" && currentPlayer === "O") {
+        statusText.textContent = "🤖 AI is thinking...";
+        renderBoard();
+
+        aiTimer = setTimeout(() => {
+            aiTimer = null;
+
+            if (!gameActive || mode.value !== "ai") return;
+
+            const move = findBestMove();
+            if (move !== -1) makeAIMove(move);
+        }, 350);
+    } else {
+        statusText.textContent = `Player ${currentPlayer}'s turn`;
+        renderBoard();
+    }
+}
+
+function makeAIMove(index) {
+    if (!gameActive || board[index] !== "") return;
+
+    board[index] = "O";
+    renderBoard();
+
+    if (checkGame()) return;
+
+    currentPlayer = "X";
+    statusText.textContent = "Your turn — choose a square!";
+    renderBoard();
+}
+
+// Minimax AI algorithm
+function minimax(state, maximizing) {
+    const result = getWinner(state);
+
+    if (result?.player === "O") return 10;
+    if (result?.player === "X") return -10;
+    if (state.every(cell => cell !== "")) return 0;
+
+    if (maximizing) {
+        let best = -Infinity;
+
+        for (let i = 0; i < 9; i++) {
+            if (state[i] === "") {
+                state[i] = "O";
+                best = Math.max(best, minimax(state, false));
+                state[i] = "";
+            }
+        }
+
+        return best;
+    }
+
+    let best = Infinity;
+
+    for (let i = 0; i < 9; i++) {
+        if (state[i] === "") {
+            state[i] = "X";
+            best = Math.min(best, minimax(state, true));
+            state[i] = "";
+        }
+    }
+
+    return best;
+}
+
+function findBestMove() {
+    let bestScore = -Infinity;
+    let bestMoves = [];
+
+    for (let i = 0; i < 9; i++) {
+        if (board[i] !== "") continue;
+
+        board[i] = "O";
+        const score = minimax(board, false);
+        board[i] = "";
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestMoves = [i];
+        } else if (score === bestScore) {
+            bestMoves.push(i);
+        }
+    }
+
+    if (bestMoves.length === 0) return -1;
+
+    return bestMoves[
+        Math.floor(Math.random() * bestMoves.length)
+    ];
+}
+
+function newRound() {
+    clearTimeout(aiTimer);
+    aiTimer = null;
+
+    board = Array(9).fill("");
+    currentPlayer = "X";
+    gameActive = true;
+
+    statusText.textContent = mode.value === "ai"
+        ? "Your turn — choose a square!"
+        : "Player X's turn";
+
+    renderBoard();
+}
+
+function resetScores() {
+    scoreX = 0;
+    scoreO = 0;
+
+    scoreXText.textContent = "0";
+    scoreOText.textContent = "0";
+
+    newRound();
+}
+
+function updateModeLabels() {
+    const aiMode = mode.value === "ai";
+
+    document.getElementById("oTitle").textContent =
+        aiMode ? "AI PLAYER O" : "PLAYER O";
+
+    document.getElementById("xLabel").textContent =
+        aiMode ? "You" : "Player One";
+
+    document.getElementById("oLabel").textContent =
+        aiMode ? "Computer" : "Player Two";
+}
+
+cells.forEach((cell, index) => {
+    cell.addEventListener("click", () => makeMove(index));
+});
+
+restartBtn.addEventListener("click", newRound);
+resetBtn.addEventListener("click", resetScores);
+
+mode.addEventListener("change", () => {
+    updateModeLabels();
+    newRound();
+});
+
+updateModeLabels();
+newRound();
+</script>
+
 </body>
 </html>
-s
